@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repair Services - EcoRevive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2E7D32',
+                        secondary: '#81C784',
+                        accent: '#4CAF50',
+                        dark: '#1B5E20',
+                        light: '#E8F5E9',
+                        repairLight: '#E8F5E9',
+                        repairMid: '#C8E6C9',
+                        serviceLight: '#FFF8E1',
+                        serviceMid: '#FFECB3'
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03)',
+                        'card': '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        /* Auth Modal Styling */
+        .auth-modal {
+            @apply fixed inset-0 z-50 flex items-center justify-center bg-black/60 opacity-0 invisible transition-opacity duration-300;
+        }
+        
+        .auth-modal.active {
+            @apply opacity-100 visible;
+        }
+        
+        .modal-container {
+            @apply bg-gradient-to-br from-dark to-primary w-full max-w-md mx-4 rounded-2xl shadow-2xl overflow-hidden opacity-0 transform translate-y-8 transition-all duration-300;
+        }
+        
+        .modal-container.active {
+            @apply opacity-100 translate-y-0;
+        }
+        
+        .modal-header {
+            @apply relative p-6 text-white;
+        }
+        
+        .modal-body {
+            @apply p-6 bg-white rounded-t-3xl;
+        }
+        
+        .btn-close {
+            @apply absolute top-6 right-6 p-1 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-colors duration-300;
+        }
+        
+        .form-group {
+            @apply mb-5;
+        }
+        
+        .form-label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+        
+        .form-input {
+            @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200;
+        }
+        
+        .form-input.error {
+            @apply border-red-500 focus:ring-red-500;
+        }
+        
+        .form-input.success {
+            @apply border-green-500 focus:ring-green-500;
+        }
+        
+        .form-error {
+            @apply text-sm text-red-500 mt-1 hidden;
+        }
+        
+        .form-error.visible {
+            @apply block;
+        }
+        
+        .input-icon {
+            @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400;
+        }
+        
+        .divider {
+            @apply flex items-center my-6;
+        }
+        
+        .divider::before, .divider::after {
+            @apply content-[''] flex-1 border-t border-gray-200;
+        }
+        
+        .divider-text {
+            @apply px-3 text-sm text-gray-500;
+        }
+        
+        .btn-social {
+            @apply w-full py-3 px-4 flex items-center justify-center border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300;
+        }
+        
+        .toggle-link {
+            @apply text-primary hover:text-dark font-medium cursor-pointer transition-colors duration-300;
+        }
+        
+        .checkbox-container {
+            @apply flex items-center;
+        }
+        
+        .checkbox {
+            @apply h-4 w-4 text-primary focus:ring-primary rounded mr-2;
+        }
+        
+        .checkbox-label {
+            @apply text-sm text-gray-700;
+        }
+        
+        .success-message {
+            @apply flex items-center text-green-500 text-sm bg-green-50 p-3 rounded-lg mb-4 invisible;
+        }
+        
+        .success-message.visible {
+            @apply visible;
+        }
+        
+        .form-control {
+            @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200;
+        }
+        
+        .btn-primary {
+            @apply px-6 py-3 bg-primary text-white rounded-lg hover:bg-dark transition duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+        }
+        
+        .btn-outline {
+            @apply px-6 py-3 text-primary border-2 border-primary rounded-lg hover:bg-primary hover:text-white transition duration-300 shadow-sm hover:shadow-md;
+        }
+        
+        .btn-secondary {
+            @apply px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+        }
+
+        .thank-you-message {
+            display: none;
+        }
+        
+        .bg-gradient-soft {
+            @apply bg-gradient-to-br from-light via-white to-light;
+        }
+        
+        .card {
+            @apply bg-white rounded-xl shadow-card;
+        }
+        
+        .repair-shop-card {
+            @apply bg-white rounded-lg p-6 shadow-soft border border-gray-100;
+        }
+    </style>
+</head>
+<body class="bg-gradient-soft font-sans">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md fixed top-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold text-primary">EcoRevive</span>
+                    </a>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8 md:mx-auto justify-center">
+                        <a href="home.html" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                        <a href="donate.html" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Donate</a>
+                        <a href="scrap.html" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Sell Scrap</a>
+                        <a href="repair.html" class="text-primary border-b-2 border-primary px-3 py-2 rounded-md text-sm font-medium">Repair</a>
+                        <a href="rewards.html" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Rewards</a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div id="userProfileAreaDesktop" class="md:flex items-center space-x-4">
+                        <a href="#" title="Profile" class="text-primary hover:text-dark transition duration-200"><i class="fas fa-user-circle text-2xl"></i></a>
+                        <button onclick="logout()" class="px-4 py-1.5 text-sm font-medium bg-dark text-white rounded-full shadow-sm hover:bg-opacity-80 transition duration-200 transform hover:scale-105">Logout</button>
+                    </div>
+                    <div class="md:hidden ml-2">
+                        <button id="mobileMenuBtn" class="text-gray-500 hover:text-primary transition-colors duration-300 p-1 rounded-md hover:bg-gray-100">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="home.html" class="text-gray-500 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="donate.html" class="text-gray-500 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Donate</a>
+                <a href="scrap.html" class="text-gray-500 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Sell Scrap</a>
+                <a href="repair.html" class="text-primary block px-3 py-2 rounded-md text-base font-medium">Repair</a>
+                <a href="rewards.html" class="text-gray-500 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Rewards</a>
+                <!-- Mobile User Profile/Logout Area -->
+                <div id="userProfileAreaMobile" class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between px-3">
+                    <a href="#" class="flex items-center text-primary hover:text-dark transition duration-200"><i class="fas fa-user-circle text-xl mr-2"></i><span class="text-sm font-medium">Profile</span></a>
+                    <button onclick="logout()" class="px-3 py-1 text-sm font-medium bg-dark text-white rounded-full shadow-sm hover:bg-opacity-80 transition duration-200 transform hover:scale-105">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Back to Home Link -->
+    <div class="pt-24 pb-4">
+        <div class="container mx-auto px-4 lg:px-8">
+            <a href="home.html" class="inline-flex items-center text-primary hover:text-dark transition group">
+                <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                <span class="font-medium">Back to Home</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Hero Repair Image Section -->
+    <section class="pb-8 pt-4">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="card overflow-hidden">
+                <div class="relative w-full h-64 md:h-96 max-h-96 lg:max-h-[500px] bg-gradient-to-r from-repairLight to-repairMid">
+                    <img src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80" alt="Person repairing an item" class="w-full h-full object-cover opacity-90">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end">
+                        <div class="p-6 md:p-10 text-white max-w-3xl">
+                            <h1 class="text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                                Give Your Items a Second Life — Repair Instead of Replace
+                            </h1>
+                            <p class="text-lg md:text-xl text-white/90">
+                                Extend the lifespan of your belongings with our repair services or AI-guided DIY tutorials.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simple Repair Chatbot Section -->
+    <section id="repair-chatbot" class="py-16 bg-gradient-to-b from-emerald-50 via-white to-gray-50">
+      <div class="container mx-auto px-4 max-w-2xl">
+        <div class="text-center mb-8">
+          <div class="inline-block w-full bg-blue-50 border-2 border-blue-200 rounded-xl shadow-lg py-8 px-3 md:px-10">
+            <h2 class="text-3xl md:text-4xl font-bold text-blue-800 mb-2 flex items-center justify-center gap-2">
+              Fix It Yourself <span class="text-2xl">💡</span>
+            </h2>
+            <p class="text-base md:text-lg text-blue-900 max-w-xl mx-auto mb-4">
+              Welcome to EcoRevive's DIY repair assistant! Use the chatbot below to ask about common household repairs—just type your item (e.g., "fan", "mixer", "TV") and get a direct YouTube video link to help you fix it yourself.
+            </p>
+            <h3 class="text-2xl md:text-3xl font-bold text-blue-700 mb-3 flex items-center justify-center gap-2">
+              Repair Chatbot <span class="text-xl">🤖</span>
+            </h3>
+            <p class="text-lg text-blue-700 mb-8">Ask about common repair items and get YouTube video links instantly!</p>
+            <div class="bg-white rounded-xl shadow-card p-6">
+              <div id="chatbot-messages" class="h-64 overflow-y-auto mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200 text-left text-sm"></div>
+              <form id="chatbot-form" class="flex gap-2" onsubmit="event.preventDefault(); sendRepairChat();">
+                <input id="chatbot-input" type="text" placeholder="e.g. How to repair a fan?" class="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/30 focus:border-primary bg-white shadow-sm text-gray-800 text-base outline-none transition" />
+                <button type="submit" class="px-5 py-2 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-accent transition flex items-center gap-2">
+                  <i class="fas fa-paper-plane"></i> Send
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+    // Predefined Q&A pairs for common repair items with updated, working YouTube links
+    const repairFAQs = [
+      {
+        keywords: ["fan", "table fan", "ceiling fan"],
+        answer: `<b>About Table Fans:</b> Table fans help circulate air and keep rooms cool. Common issues include not spinning, noise, or slow speed.<br>
+        <b>Basic Instructions:</b> Unplug the fan. Check for dust buildup, loose wiring, or stuck blades. Use a screwdriver to open the grill and clean or tighten parts.<br>
+        <b>Safety Precautions:</b> Always unplug before opening. Avoid touching motor parts right after use (may be hot).<br>
+        <b>Video Guide:</b> <a href="https://youtu.be/PjOH87SMF-Q?si=NkGx8lKZQ1mYp7yo" target="_blank" class="text-primary underline">How to Repair Table Fan at Home</a>`
+      },
+      {
+        keywords: ["mixer", "grinder", "mixer grinder"],
+        answer: `<b>About Mixer Grinders:</b> These appliances are used for grinding and mixing food. Issues include blades not rotating, burning smell, or no power.<br>
+        <b>Basic Instructions:</b> Unplug and open the jar. Check for jammed blades, worn coupler, or faulty wiring.<br>
+        <b>Safety Precautions:</b> Unplug before opening. Avoid water contact with motor. Don’t force stuck blades.<br>
+        <b>Video Guide:</b> <a href="https://youtu.be/HwAlh49OXRQ?si=8h40-2MQ73ekbRcn" target="_blank" class="text-primary underline">Mixer Grinder Repair at Home</a>`
+      },
+      {
+        keywords: ["iron", "clothes iron"],
+        answer: `<b>About Electric Irons:</b> Used for pressing clothes. Common problems are not heating, water leaks, or stuck buttons.<br>
+        <b>Basic Instructions:</b> Unplug the iron. Check the cord, thermostat, and clean the soleplate.<br>
+        <b>Safety Precautions:</b> Let iron cool before opening. Unplug before any repair. Avoid water near electrical parts.<br>
+        <b>Video Guide:</b> <a href="https://youtu.be/lrs-O2vbw_c?si=_gaCzuUCx3J_dPCE" target="_blank" class="text-primary underline">How to Repair Electric Iron at Home</a>`
+      },
+      {
+        keywords: ["chair", "broken chair", "furniture"],
+        answer: `<b>About Chairs:</b> Chairs can become wobbly or break at joints and legs.<br>
+        <b>Basic Instructions:</b> Inspect for loose screws or broken wood. Use wood glue, screws, or brackets to reinforce.<br>
+        <b>Safety Precautions:</b> Wear gloves and eye protection when using tools. Work on a stable surface.<br>
+        <b>Video Guide:</b> <a href="https://youtu.be/s1vqBBu6Z8s?si=AyfZoBbf1gixv37e" target="_blank" class="text-primary underline">How to Fix a Broken Chair</a>`
+      },
+      {
+        keywords: ["mobile", "phone", "smartphone"],
+        answer: `<b>About Mobile Phones:</b> Phones may have screen, battery, or charging issues.<br>
+        <b>Basic Instructions:</b> Try a different charger, restart, or reset. For hardware, open only if you have experience.<br>
+        <b>Safety Precautions:</b> Power off before opening. Avoid static electricity. Don’t use metal tools on battery.<br>
+        <b>Video Guide:</b> <a href="https://youtu.be/Ey6VDpvhrW8?si=1PoRAsMkuVww-Pzi" target="_blank" class="text-primary underline">Mobile Phone Repair for Beginners</a>`
+      },
+      {
+        keywords: ["bicycle", "cycle", "bike"],
+        answer: `<b>About Bicycles:</b> Bicycles may have flat tires, loose chains, or brake issues.<br>
+        <b>Basic Instructions:</b> Check tire pressure, lubricate chain, adjust brakes with a wrench.<br>
+        <b>Safety Precautions:</b> Use a bike stand. Wear gloves. Avoid pinching fingers in gears.<br>
+        <b>Video Guide:</b> <a href="https://youtu.be/VXzq8Nlm7ts?si=QYltsHSBt2bgc33x" target="_blank" class="text-primary underline">How to Repair a Bicycle</a>`
+      },
+      {
+        keywords: ["washing machine", "laundry"],
+        answer: `<b>About Washing Machines:</b> Common problems: not spinning, draining, or starting.<br>
+        <b>Basic Instructions:</b> Unplug. Check drain hose, clean filter, inspect door latch.<br>
+        <b>Safety Precautions:</b> Unplug before repair. Avoid water near open wires. Don’t overload drum.<br>
+        <b>Video Guide:</b> <a href="https://youtu.be/bEpHnJNaYOM?si=uE1BC0TQ2UkIj8Nd" target="_blank" class="text-primary underline">DIY Washing Machine Repair</a>`
+      },
+      {
+        keywords: ["tv", "television", "led tv"],
+        answer: `<b>About LED TVs:</b> TVs may have display, sound, or power issues.<br>
+        <b>Basic Instructions:</b> Unplug. Check remote, cables, and power supply. For screen issues, consult a technician.<br>
+        <b>Safety Precautions:</b> Unplug before opening. Don’t touch capacitors. Avoid liquid contact.<br>
+        <b>Video Guide:</b> <a href="https://youtu.be/H7-MbB5M99w?si=bRAdDIgO0pg3giYN" target="_blank" class="text-primary underline">How to Repair LED TV at Home</a>`
+      }
+    ];
+
+    function getRepairAnswer(query) {
+      const msg = query.toLowerCase();
+      for (const faq of repairFAQs) {
+        if (faq.keywords.some(word => msg.includes(word))) {
+          return faq.answer;
+        }
+      }
+      return "Sorry, I don't have a video for that item yet. Try asking about a fan, mixer, iron, chair, mobile, bicycle, washing machine, or TV.";
+    }
+
+    function appendChatMessage(text, sender = 'user') {
+      const messages = document.getElementById('chatbot-messages');
+      const div = document.createElement('div');
+      div.className = sender === 'user' ? 'mb-2 text-right' : 'mb-2 text-left';
+      div.innerHTML = `<span class="inline-block px-3 py-2 rounded-lg ${sender === 'user' ? 'bg-accent text-white' : 'bg-gray-200 text-gray-900'}">${text}</span>`;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function sendRepairChat() {
+      const input = document.getElementById('chatbot-input');
+      const query = input.value.trim();
+      if (!query) return;
+      appendChatMessage(query, 'user');
+      input.value = '';
+      setTimeout(() => {
+        const reply = getRepairAnswer(query);
+        appendChatMessage(reply, 'bot');
+      }, 400);
+    }
+    </script>
+
+    <!-- Content Section with Left-Right Layout -->
+    <section class="py-16">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <!-- Left Side: Content -->
+                <div class="lg:w-1/2 order-2 lg:order-1">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Expert Repair Services for Your Items</h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Give your valuable items a second chance instead of discarding them. Our network of skilled repair experts can fix a wide range of products, from electronics to furniture.
+                    </p>
+                    
+                    <div class="space-y-6 mb-8">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 bg-light rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-tools text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800 mb-2">Professional Expertise</h3>
+                                <p class="text-gray-600">Our network includes certified technicians and craftspeople with years of experience in their specialized fields.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 bg-light rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-leaf text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800 mb-2">Environmental Impact</h3>
+                                <p class="text-gray-600">By repairing instead of replacing, you help reduce waste and minimize your environmental footprint.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 bg-light rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-money-bill-wave text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800 mb-2">Cost-Effective Solutions</h3>
+                                <p class="text-gray-600">Repairing is often much more affordable than replacing items, saving you money while preserving your belongings.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="#repair-form" class="btn-primary inline-flex items-center">
+                        Request Repair Service
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Right Side: Image -->
+                <div class="lg:w-1/2 order-1 lg:order-2">
+                    <div class="rounded-xl overflow-hidden shadow-card">
+                        <img src="img/repair_1 (1).jpg" alt="Professional repair service" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Verified Repair Shops Section -->
+    <section class="py-16 bg-light/50">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Verified EcoRevive Repair Branches</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">
+                    Connect with our trusted EcoRevive branches specializing in various repair services to extend the life of your items.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Repair Shop 1 -->
+                 <div class="repair-shop-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-white to-amber-50/30 transition-all duration-300 hover:shadow-lg hover:border-amber-300 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-amber-500 text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 1</h3>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-tag mr-1 text-amber-600/80"></i> Specializes in: Electronics & Appliances</p>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-amber-600/80"></i> Shaikpet,Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-amber-600/80"></i> 9700983304</p>
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                        <span class="mr-2"><i class="fas fa-star mr-1 text-amber-500"></i> Rating:</span>
+                        <div class="flex text-amber-400">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            <span class="text-gray-600 ml-1">(4.5)</span>
+                        </div>
+                    </div>
+                    <a href="#booking-form" class="inline-block text-sm text-amber-600 font-medium hover:text-amber-700 transition">Book Service <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+
+                <!-- Repair Shop 2 -->
+                <div class="repair-shop-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-white to-amber-50/30 transition-all duration-300 hover:shadow-lg hover:border-amber-300 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-amber-500 text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-couch"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 2</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-tag mr-1 text-amber-600/80"></i> Specializes in: Furniture Repair</p>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-amber-600/80"></i> Upperpally, RangaReddy, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-amber-600/80"></i> 7411830995</p>
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                         <span class="mr-2"><i class="fas fa-star mr-1 text-amber-500"></i> Rating:</span>
+                         <div class="flex text-amber-400">
+                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                             <span class="text-gray-600 ml-1">(5.0)</span>
+                         </div>
+                     </div>
+                    <a href="#booking-form" class="inline-block text-sm text-amber-600 font-medium hover:text-amber-700 transition">Book Service <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+                
+                <!-- Repair Shop 3 -->
+                 <div class="repair-shop-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-white to-amber-50/30 transition-all duration-300 hover:shadow-lg hover:border-amber-300 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-amber-500 text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-tshirt"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 3</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-tag mr-1 text-amber-600/80"></i> Specializes in: Clothing & Textiles</p>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-amber-600/80"></i> RangaReddy, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-amber-600/80"></i> 8688551582</p>
+                     <div class="flex items-center text-sm text-gray-500 mb-4">
+                         <span class="mr-2"><i class="fas fa-star mr-1 text-amber-500"></i> Rating:</span>
+                         <div class="flex text-amber-400">
+                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                             <span class="text-gray-600 ml-1">(4.0)</span>
+                         </div>
+                     </div>
+                    <a href="#booking-form" class="inline-block text-sm text-amber-600 font-medium hover:text-amber-700 transition">Book Service <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+
+                <!-- Repair Shop 4 -->
+                 <div class="repair-shop-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-white to-amber-50/30 transition-all duration-300 hover:shadow-lg hover:border-amber-300 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                     <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-amber-500 text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-mobile-alt"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 4</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-tag mr-1 text-amber-600/80"></i> Specializes in: Mobile & Tablets</p>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-amber-600/80"></i> Attapur, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-amber-600/80"></i> 7947129553</p>
+                     <div class="flex items-center text-sm text-gray-500 mb-4">
+                         <span class="mr-2"><i class="fas fa-star mr-1 text-amber-500"></i> Rating:</span>
+                         <div class="flex text-amber-400">
+                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                             <span class="text-gray-600 ml-1">(4.7)</span>
+                         </div>
+                     </div>
+                    <a href="#booking-form" class="inline-block text-sm text-amber-600 font-medium hover:text-amber-700 transition">Book Service <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+                
+                <!-- Repair Shop 5 -->
+                 <div class="repair-shop-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-white to-amber-50/30 transition-all duration-300 hover:shadow-lg hover:border-amber-300 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-amber-500 text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-bicycle"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 5</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-tag mr-1 text-amber-600/80"></i> Specializes in: Bikes & Sporting Goods</p>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-amber-600/80"></i> Yousufguda, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-amber-600/80"></i> 7947145838</p>
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                         <span class="mr-2"><i class="fas fa-star mr-1 text-amber-500"></i> Rating:</span>
+                         <div class="flex text-amber-400">
+                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                             <span class="text-gray-600 ml-1">(4.2)</span>
+                         </div>
+                     </div>
+                    <a href="#booking-form" class="inline-block text-sm text-amber-600 font-medium hover:text-amber-700 transition">Book Service <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+                
+                <!-- Repair Shop 6 -->
+                <div class="repair-shop-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-white to-amber-50/30 transition-all duration-300 hover:shadow-lg hover:border-amber-300 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                     <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-amber-500 text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-blender"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 6</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-tag mr-1 text-amber-600/80"></i> Specializes in: Home Appliances</p>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-amber-600/80"></i> Gachibowli, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-amber-600/80"></i> 8197494214</p>
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                         <span class="mr-2"><i class="fas fa-star mr-1 text-amber-500"></i> Rating:</span>
+                         <div class="flex text-amber-400">
+                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i><i class="far fa-star"></i>
+                             <span class="text-gray-600 ml-1">(3.5)</span>
+                         </div>
+                     </div>
+                    <a href="#booking-form" class="inline-block text-sm text-amber-600 font-medium hover:text-amber-700 transition">Book Service <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Form -->
+    <div id="booking-form" class="max-w-4xl mx-auto">
+        <div class="card p-8 md:p-10 bg-gradient-to-b from-white to-serviceLight/30">
+            <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Book a Repair Service</h3>
+            
+            <!-- Form Container with Border and Background -->
+            <div class="p-6 bg-white border border-secondary rounded-lg shadow-soft">
+                <form id="repair-form" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Name Input -->
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="name" name="name" class="form-control" placeholder="Your full name" required>
+                        </div>
+                        
+                        <!-- Email Input -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="your@email.com" required>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Item Type Dropdown -->
+                        <div>
+                            <label for="item-type" class="block text-sm font-medium text-gray-700 mb-1">Item Type</label>
+                            <select id="item-type" name="item-type" class="form-control" required>
+                                <option value="" disabled selected>Select item type</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="appliance">Home Appliance</option>
+                                <option value="furniture">Furniture</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="mobile">Mobile Phone</option>
+                                <option value="bicycle">Bicycle</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Phone Number -->
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="form-control" placeholder="(555) 123-4567" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Image -->
+                    <div>
+                        <label for="item-image" class="block text-sm font-medium text-gray-700 mb-1">Upload Image of Item</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200 border-dashed rounded-lg bg-white">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600 justify-center">
+                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-dark focus-within:outline-none">
+                                        <span>Upload a file</span>
+                                        <input id="file-upload" name="file-upload" type="file" class="sr-only" accept="image/*">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">
+                                    PNG, JPG, GIF up to 5MB
+                                </p>
+                            </div>
+                        </div>
+                        <div id="image-preview" class="mt-3 hidden">
+                            <img id="preview-img" src="#" alt="Preview" class="h-40 rounded-lg object-cover">
+                            <button type="button" id="remove-img" class="mt-2 text-sm text-red-500 hover:text-red-700 flex items-center">
+                                <i class="fas fa-times mr-1"></i> Remove image
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Description Textarea -->
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Issue Description</label>
+                        <textarea id="description" name="description" rows="4" class="form-control" placeholder="Please describe the issue with your item, including when it started and any relevant details." required></textarea>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="text-center">
+                        <button type="submit" class="py-4 px-10 btn-secondary text-lg font-semibold">
+                            Submit Repair Request
+                        </button>
+                    </div>
+                </form>
+            </div> <!-- End Form Container -->
+            
+            <!-- Thank You Message (Hidden by default) -->
+            <div id="thank-you-message" class="thank-you-message text-center py-8">
+                <div class="text-amber-600 mb-4">
+                    <svg class="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Thank You for Your Repair Request!</h3>
+                <p class="text-lg text-gray-600 mb-6">
+                    Your repair request has been received. One of our partner repair shops will contact you shortly to discuss next steps.
+                </p>
+                <a href="home.html" class="inline-block px-6 py-3 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition">
+                    Return to Home
+                </a>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center text-gray-600 text-sm">
+            By submitting this form, you agree to our <a href="#" class="text-primary hover:underline">Terms of Service</a> and <a href="#" class="text-primary hover:underline">Privacy Policy</a>.
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer id="contact" class="bg-gray-800 text-white py-12 mt-16">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">EcoRevive 🌱</h3>
+                    <p class="text-gray-300 mb-4">
+                        Building a sustainable future, one item at a time.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 hover:bg-gray-600 hover:text-white transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 hover:bg-gray-600 hover:text-white transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 hover:bg-gray-600 hover:text-white transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 hover:bg-gray-600 hover:text-white transition">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="home.html" class="text-gray-300 hover:text-white transition">Home</a></li>
+                        <li><a href="index.html#services" class="text-gray-300 hover:text-white transition">Our Services</a></li>
+                        <li><a href="index.html#how-it-works" class="text-gray-300 hover:text-white transition">How It Works</a></li>
+                        <li><a href="index.html#about" class="text-gray-300 hover:text-white transition">About</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Legal -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Legal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Terms & Conditions</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Cookie Policy</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mr-2 mt-1"></i>
+                            <span>123 Eco Street, Green City</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mr-2 mt-1"></i>
+                            <span>info@ecorevive.com</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt mr-2 mt-1"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-12 pt-8 text-center">
+                <p>&copy; 2023 EcoRevive. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for basic functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded - Initializing page');
+            
+            // Mobile menu toggle
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // REMOVED Modal Toggle Logic 
+            
+            // Add form submission and image preview logic if necessary (similar to donate/scrap)
+        });
+
+        // Placeholder logout function
+        function logout() {
+            console.log('Logout action triggered');
+            // Add actual logout logic here
+            window.location.href = 'login.html'; 
+        }
+
+        // Removed toggleUserArea function and associated DOMContentLoaded logic
+
+    </script>
+    <!-- Chatbot Widget Start -->
+    <div id="chatbot-container" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <!-- Chat Button -->
+        <button id="chatbot-toggle" aria-label="Open Chatbot" class="bg-primary text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-accent transition mb-2 focus:outline-none">
+            <i class="fas fa-comments"></i>
+        </button>
+        <!-- Chat Window -->
+        <div id="chatbot-window" class="hidden w-80 bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-fade-in">
+            <div class="bg-primary text-white px-4 py-3 flex items-center justify-between">
+                <span class="font-semibold">EcoRevive Assistant</span>
+                <button id="chatbot-close" class="text-white hover:text-accent text-lg focus:outline-none" aria-label="Close Chatbot">&times;</button>
+            </div>
+            <div id="chatbot-messages" class="flex-1 px-4 py-3 space-y-2 overflow-y-auto bg-gray-50" style="max-height: 320px;"></div>
+            <form id="chatbot-form" class="flex border-t border-gray-200 bg-white">
+                <input id="chatbot-input" type="text" class="flex-1 px-3 py-2 outline-none text-gray-800 bg-transparent" placeholder="Ask about EcoRevive..." autocomplete="off" required />
+                <button type="submit" class="px-4 py-2 bg-accent text-white font-semibold rounded-r-lg hover:bg-primary transition">Send</button>
+            </form>
+        </div>
+    </div>
+    <!-- Chatbot Widget End -->
+
+    <script>
+    // Enhanced FAQ-based chatbot
+    const ecoReviveFAQs = [
+      { question: "What is EcoRevive?", answer: "EcoRevive is a platform where you can donate or repair old/refurbished items. We promote sustainability by helping you extend the life of your belongings before you consider donating them to someone in need." },
+      { question: "How does the repair chatbot work?", answer: "Our AI-powered repair assistant helps you troubleshoot and fix common issues with various items. Just describe the item and the problem, and the chatbot will guide you with steps, tools needed, and video tutorials." },
+      { question: "What kind of items can I repair through EcoRevive?", answer: "You can repair electronics, furniture, clothes, small appliances, and more. Our chatbot will try its best to assist based on the item type you provide." },
+      { question: "Where do the tutorial videos come from?", answer: "The videos are sourced from YouTube. The chatbot recommends high-quality, trusted repair tutorials based on your query to help you fix your item yourself." },
+      { question: "What happens if I can't repair the item?", answer: "No worries! You can still choose to donate it. We'll either send it to our partner NGOs or help route it to professionals for further refurbishment." },
+      { question: "Do I need to sign up to use the repair assistant?", answer: "No signup is needed to access the repair assistant. However, creating an account lets you track your repairs, donations, and earn reward points!" },
+      { question: "Is there a cost to use EcoRevive?", answer: "EcoRevive is free to use. Our goal is to reduce waste and promote a culture of repair and reuse. You may only pay if you choose professional pickup or repair services." },
+      { question: "How do I contact support?", answer: "You can chat with our bot anytime, or send us a message through the Contact Us page. We're here to help!" },
+      { question: "Can I schedule a pickup for donation items?", answer: "Yes! You can schedule a pickup from your dashboard after listing your items. We'll coordinate with our partnered NGOs or repair teams based on your location." },
+      { question: "Will I get any reward or points for donating?", answer: "Yes! We believe in appreciating your kindness. Every donation earns you EcoPoints which can be redeemed for discounts, gift items, or recognition on our platform." },
+      { question: "What condition should the item be in before donating?", answer: "We accept items that are gently used, functional, or repairable. You can even use the AI repair guide before donation to ensure better usability for the recipient." },
+      { question: "Is my personal information safe?", answer: "Absolutely. We take privacy seriously and do not share your personal data with third parties without consent." },
+      { question: "What NGOs are partnered with EcoRevive?", answer: "We collaborate with trusted, verified NGOs focused on education, rural development, and community upliftment. You can view each NGO's profile on the Donation page." },
+      { question: "Can I suggest an NGO to be listed on EcoRevive?", answer: "Yes! We welcome recommendations. If you know an NGO doing great work, drop us a suggestion and we’ll reach out for verification." },
+      { question: "Can I repair items on mobile or only on desktop?", answer: "The AI repair assistant and tutorials are fully mobile-friendly. You can fix and follow guides on any device!" },
+      { question: "Can I request a human repair expert if I need extra help?", answer: "Yes, if you feel stuck, you can request help. We'll connect you to a verified technician or guide you to the nearest service center." },
+      { question: "How often is the chatbot updated?", answer: "The chatbot is regularly updated with new repair guides, smarter conversation flow, and the latest video tutorials for accuracy and ease." },
+      { question: "Can schools or communities use EcoRevive together?", answer: "Yes! We love group initiatives. Schools, colleges, and housing societies can join EcoRevive as partners for bulk donations or eco-awareness campaigns." }
+    ];
+    // Previous keyword-based fallback
+    const chatbotQA = [
+        { q: ["donate", "donation", "how to donate"], a: "To donate items, simply sign up or log in, then click on the 'Donate' option in your dashboard. Follow the steps to list your items for donation." },
+        { q: ["sell", "scrap", "how to sell"], a: "To sell scrap, log in and select the 'Sell Scrap' feature. You can list your items and connect with buyers interested in recycling." },
+        { q: ["repair", "fix", "repair service"], a: "EcoRevive offers repair services. Go to the 'Repair' section after logging in to request a repair or find local repair partners." },
+        { q: ["reward", "points", "how to earn"], a: "You earn reward points by donating, selling scrap, or using repair services. Points can be redeemed for discounts or special offers." },
+        { q: ["signup", "register", "create account"], a: "Click the 'Sign Up' button at the top right to create your EcoRevive account." },
+        { q: ["login", "sign in", "log in"], a: "Use the 'Log In' button at the top right to access your account." },
+        { q: ["feature", "what can i do", "services"], a: "EcoRevive lets you donate, sell scrap, repair items, and earn rewards for sustainable actions." },
+        { q: ["contact", "support", "help"], a: "For support, use the contact form on our website or email us at support@ecorevive.com." }
+    ];
+
+    // Enhanced answer selection: first try FAQ, then fallback to keywords
+    function getChatbotAnswer(userMsg) {
+        const msg = userMsg.toLowerCase();
+        // Try FAQ match (by question or keywords)
+        for (const faq of ecoReviveFAQs) {
+            // Direct question match
+            if (faq.question.toLowerCase() === msg) {
+                return faq.answer;
+            }
+            // Partial/keyword match
+            const questionWords = faq.question.toLowerCase().split(/\W+/);
+            if (questionWords.some(word => word.length > 3 && msg.includes(word))) {
+                return faq.answer;
+            }
+        }
+        // Fallback to previous keyword logic
+        for (const pair of chatbotQA) {
+            if (pair.q.some(keyword => msg.includes(keyword))) {
+                return pair.a;
+            }
+        }
+        return "Sorry, I can only answer questions related to EcoRevive's features. Please try asking about donating, selling scrap, repairs, rewards, or signing up.";
+    }
+
+    // DOM Elements
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbotWindow = document.getElementById('chatbot-window');
+    const chatbotClose = document.getElementById('chatbot-close');
+    const chatbotForm = document.getElementById('chatbot-form');
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+
+    // Open/close logic
+    chatbotToggle.addEventListener('click', () => {
+        chatbotWindow.classList.toggle('hidden');
+        if (!chatbotWindow.classList.contains('hidden')) {
+            setTimeout(() => chatbotInput.focus(), 200);
+        }
+    });
+    chatbotClose.addEventListener('click', () => {
+        chatbotWindow.classList.add('hidden');
+    });
+
+    // Handle chat form submission
+    chatbotForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const userMsg = chatbotInput.value.trim();
+        if (!userMsg) return;
+        appendMessage(userMsg, 'user');
+        chatbotInput.value = '';
+        setTimeout(() => {
+            const botReply = getChatbotAnswer(userMsg);
+            appendMessage(botReply, 'bot');
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }, 500);
+    });
+
+    // Append message to chat
+    function appendMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = sender === 'user'
+            ? 'flex justify-end'
+            : 'flex justify-start';
+        msgDiv.innerHTML = `<div class="max-w-[80%] px-4 py-2 rounded-lg shadow text-sm ${sender === 'user' ? 'bg-accent text-white' : 'bg-gray-200 text-gray-900'}">${text}</div>`;
+        chatbotMessages.appendChild(msgDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+    </script>
+
+</body>
+</html> 

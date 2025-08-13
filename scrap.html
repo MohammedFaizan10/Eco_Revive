@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrap Recycling - EcoRevive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2E7D32',
+                        secondary: '#81C784',
+                        accent: '#4CAF50',
+                        dark: '#1B5E20',
+                        light: '#E8F5E9'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Roboto', 'system-ui', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03)',
+                        'card': '0 12px 20px -8px rgba(46, 125, 50, 0.15)',
+                        'price-card': '0 4px 12px rgba(0, 0, 0, 0.08)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        /* Auth Modal Styling */
+        .auth-modal {
+            @apply fixed inset-0 z-50 flex items-center justify-center bg-black/60 opacity-0 invisible transition-opacity duration-300;
+        }
+        
+        .auth-modal.active {
+            @apply opacity-100 visible;
+        }
+        
+        .modal-container {
+            @apply bg-gradient-to-br from-dark to-primary w-full max-w-md mx-4 rounded-2xl shadow-2xl overflow-hidden opacity-0 transform translate-y-8 transition-all duration-300;
+        }
+        
+        .modal-container.active {
+            @apply opacity-100 translate-y-0;
+        }
+        
+        .modal-header {
+            @apply relative p-6 text-white;
+        }
+        
+        .modal-body {
+            @apply p-6 bg-white rounded-t-3xl;
+        }
+        
+        .btn-close {
+            @apply absolute top-6 right-6 p-1 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-colors duration-300;
+        }
+        
+        .form-group {
+            @apply mb-5;
+        }
+        
+        .form-label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+        
+        .form-input {
+            @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200;
+        }
+        
+        .form-input.error {
+            @apply border-red-500 focus:ring-red-500;
+        }
+        
+        .form-input.success {
+            @apply border-green-500 focus:ring-green-500;
+        }
+        
+        .form-error {
+            @apply text-sm text-red-500 mt-1 hidden;
+        }
+        
+        .form-error.visible {
+            @apply block;
+        }
+        
+        .input-icon {
+            @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400;
+        }
+        
+        .divider {
+            @apply flex items-center my-6;
+        }
+        
+        .divider::before, .divider::after {
+            @apply content-[''] flex-1 border-t border-gray-200;
+        }
+        
+        .divider-text {
+            @apply px-3 text-sm text-gray-500;
+        }
+        
+        .btn-social {
+            @apply w-full py-3 px-4 flex items-center justify-center border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300;
+        }
+        
+        .toggle-link {
+            @apply text-primary hover:text-dark font-medium cursor-pointer transition-colors duration-300;
+        }
+        
+        .checkbox-container {
+            @apply flex items-center;
+        }
+        
+        .checkbox {
+            @apply h-4 w-4 text-primary focus:ring-primary rounded mr-2;
+        }
+        
+        .checkbox-label {
+            @apply text-sm text-gray-700;
+        }
+        
+        .success-message {
+            @apply flex items-center text-green-500 text-sm bg-green-50 p-3 rounded-lg mb-4 invisible;
+        }
+        
+        .success-message.visible {
+            @apply visible;
+        }
+        
+        .form-control {
+            @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200;
+        }
+        
+        .btn-primary {
+            @apply px-6 py-3 bg-primary text-white rounded-lg hover:bg-dark transition duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+        }
+        
+        .btn-outline {
+            @apply px-6 py-3 text-primary border-2 border-primary rounded-lg hover:bg-primary hover:text-white transition duration-300 shadow-sm hover:shadow-md;
+        }
+
+        .thank-you-message {
+            display: none;
+        }
+        
+        .bg-gradient-soft {
+            @apply bg-gradient-to-br from-light via-white to-light;
+        }
+        
+        .card {
+            @apply bg-white rounded-xl shadow-card;
+        }
+
+        .dealer-card {
+            @apply bg-white rounded-lg p-5 shadow-soft border border-gray-100 transition hover:shadow-md;
+        }
+
+        /* Styles for the new price list grid */
+        /* Base styles applied directly via classes now */
+         .price-card h3 {
+             @apply text-lg font-semibold text-gray-800 mt-4 mb-1;
+         }
+         .price-card p {
+             @apply text-xl font-bold text-primary mb-4;
+         }
+    </style>
+</head>
+<body class="bg-gradient-soft font-sans">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md sticky top-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold text-primary">EcoRevive</span>
+                    </a>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8 md:mx-auto justify-center">
+                        <a href="home.html" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                        <a href="donate.html" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Donate</a>
+                        <a href="scrap.html" class="text-primary border-b-2 border-primary px-3 py-2 rounded-md text-sm font-medium">Sell Scrap</a>
+                        <a href="repair.html" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Repair</a>
+                        <a href="rewards.html" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Rewards</a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div id="userProfileAreaDesktop" class="md:flex items-center space-x-4">
+                        <a href="#" title="Profile" class="text-primary hover:text-dark transition duration-200"><i class="fas fa-user-circle text-2xl"></i></a>
+                        <button onclick="logout()" class="px-4 py-1.5 text-sm font-medium bg-dark text-white rounded-full shadow-sm hover:bg-opacity-80 transition duration-200 transform hover:scale-105">Logout</button>
+                    </div>
+                    <div class="md:hidden ml-2">
+                        <button id="mobileMenuBtn" class="text-gray-500 hover:text-primary"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="home.html" class="text-gray-500 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="donate.html" class="text-gray-500 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Donate</a>
+                <a href="scrap.html" class="text-primary block px-3 py-2 rounded-md text-base font-medium">Sell Scrap</a>
+                <a href="repair.html" class="text-gray-500 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Repair</a>
+                <a href="rewards.html" class="text-gray-500 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Rewards</a>
+                <!-- Mobile User Profile/Logout Area -->
+                <div id="userProfileAreaMobile" class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between px-3">
+                    <a href="#" class="flex items-center text-primary hover:text-dark transition duration-200"><i class="fas fa-user-circle text-xl mr-2"></i><span class="text-sm font-medium">Profile</span></a>
+                    <button onclick="logout()" class="px-3 py-1 text-sm font-medium bg-dark text-white rounded-full shadow-sm hover:bg-opacity-80 transition duration-200 transform hover:scale-105">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Back to Home Link -->
+    <div class="pt-24 pb-4">
+        <div class="container mx-auto px-4 lg:px-8">
+            <a href="home.html" class="inline-flex items-center text-primary hover:text-dark transition group">
+                <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                <span class="font-medium">Back to Home</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Hero Scrap Image Section -->
+    <section class="pb-8 pt-4">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="card overflow-hidden">
+                <div class="relative w-full h-64 md:h-96 max-h-96 lg:max-h-[500px] bg-gradient-to-r from-secondary/20 to-accent/20">
+                    <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80" alt="Recycling materials" class="w-full h-full object-cover opacity-90">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end">
+                        <div class="p-6 md:p-10 text-white max-w-3xl">
+                            <h1 class="text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                                Recycle Smarter — Give Unusable Items a Responsible Goodbye
+                            </h1>
+                            <p class="text-lg md:text-xl text-white/90">
+                                Contact verified recyclers directly or use our form to find the best match for your scrap materials.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Section with Left-Right Layout -->
+    <section class="py-16">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <!-- Left Side: Content -->
+                <div class="lg:w-1/2">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Turn Your Scrap Into Value</h2>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Don't let your scrap materials go to waste. Our network of verified recyclers ensures your materials are properly recycled while providing you with the best value.
+                    </p>
+                    
+                    <div class="space-y-6 mb-8">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 bg-light rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-recycle text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800 mb-2">Responsible Recycling</h3>
+                                <p class="text-gray-600">Our certified partners follow eco-friendly processes to ensure materials are properly recycled and repurposed.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 bg-light rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-dollar-sign text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800 mb-2">Competitive Rates</h3>
+                                <p class="text-gray-600">Get the best value for your scrap materials through our network of competing buyers.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 bg-light rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-truck text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800 mb-2">Convenient Pickup</h3>
+                                <p class="text-gray-600">Many of our partners offer free pickup services for larger quantities of scrap materials.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="#scrap-form" class="btn-primary inline-flex items-center">
+                        Submit Scrap Details
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Right Side: Image -->
+                <div class="lg:w-1/2">
+                    <div class="rounded-xl overflow-hidden shadow-card">
+                        <img src="img/scrap_1 (1).jpg" alt="Recycling scrap materials" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Page Title Section -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-4 lg:px-8 text-center">
+             <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Scrap Price Guide</h2>
+             <p class="text-lg text-gray-600 max-w-2xl mx-auto">Indicative prices for common scrap materials. Actual value depends on quality, quantity, and market conditions.</p>
+        </div>
+    </section>
+
+    <!-- Scrap Price List Grid -->
+    <section class="pb-16 bg-white">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                
+                <!-- Newspaper -->
+                <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/newspaper-scrap (1).webp" alt="Newspaper Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Newspaper</h3>
+                        <p>₹10 / Kg</p>
+                    </div>
+                </div>
+
+                <!-- Books -->
+                <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/old-books.webp" alt="Books Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Books</h3>
+                        <p>₹7 / Kg</p>
+                    </div>
+                </div>
+
+                <!-- Plastic (Soft) -->
+                <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/plastic-scrap.webp" alt="Plastic Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Plastic (Soft)</h3>
+                        <p>₹7 / Kg</p>
+                    </div>
+                </div>
+                
+                <!-- Plastic (Hard) -->
+                <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/hard-plastic-scrap.webp" alt="Hard Plastic Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Plastic (Hard)</h3>
+                        <p>₹2 / Kg</p>
+                    </div>
+                </div>
+
+                <!-- Cardboard -->
+                <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                     <img src="img/cardboard-scrap.webp" alt="Cardboard Scrap" class="h-32 w-full object-cover">
+                     <div class="p-4">
+                        <h3>Cardboard</h3>
+                        <p>₹4 / Kg</p>
+                    </div>
+                </div>
+
+                <!-- Iron -->
+                <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/iron-scrap.webp" alt="Iron Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Iron</h3>
+                        <p>₹22 / Kg</p>
+                    </div>
+                </div>
+                
+                <!-- Tin -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/tin-scrap.webp" alt="Tin Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Tin</h3>
+                        <p>₹16 / Kg</p>
+                    </div>
+                </div>
+
+                <!-- Copper -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                     <img src="img/copper-scrap.webp" alt="Copper Scrap" class="h-32 w-full object-cover">
+                     <div class="p-4">
+                        <h3>Copper</h3>
+                        <p>₹500 / Kg</p>
+                    </div>
+                </div>
+
+                <!-- Brass -->
+                <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/brass-scrap.webp" alt="Brass Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Brass</h3>
+                        <p>₹350 / Kg</p>
+                    </div>
+                </div>
+
+                <!-- Aluminium -->
+                <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/aluminium-scrap.webp" alt="Aluminium Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Aluminium</h3>
+                        <p>₹110 / Kg</p>
+                    </div>
+                </div>
+
+                 <!-- Stainless Steel -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/stainless-steel-scrap.webp" alt="Stainless Steel Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Stainless Steel</h3>
+                        <p>₹45 / Kg</p>
+                    </div>
+                </div>
+
+                <!-- Battery -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/battery-scrap.webp" alt="Battery Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Battery</h3>
+                        <p>₹80 - ₹130 / Kg</p>
+                    </div>
+                </div>
+                
+                <!-- Electrical Wiring -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/electrical-wiring-scrap.webp" alt="Electrical Wiring Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>Electrical Wiring</h3>
+                        <p>₹100 - ₹300 / Kg</p>
+                    </div>
+                </div>
+                
+                <!-- E-waste (Mixed) -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/ewaste.webp" alt="E-waste Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>E-waste (Mixed)</h3>
+                        <p>₹20 / Kg</p>
+                    </div>
+                </div>
+                
+                <!-- CPU (Complete) -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/CPU-scrap.webp" alt="CPU Scrap" class="h-32 w-full object-cover">
+                    <div class="p-4">
+                        <h3>CPU (Complete)</h3>
+                        <p>₹35 / Kg</p>
+                    </div>
+                </div>
+
+                <!-- Laptop -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                     <img src="img/all-in-one-PC.webp" alt="Laptop Scrap" class="h-32 w-full object-cover"> <!-- Using All-in-one PC image -->
+                     <div class="p-4">
+                        <h3>Laptop</h3>
+                        <p>₹200 - ₹8k / Unit</p>
+                    </div>
+                </div>
+                
+                 <!-- Mobile Phone -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/-mobile-scrap.webp" alt="Mobile Phone Scrap" class="h-32 w-full object-cover">
+                     <div class="p-4">
+                        <h3>Mobile / Tablet</h3>
+                        <p>₹15 - ₹50 / Unit</p>
+                    </div>
+                </div>
+                
+                 <!-- TV (CRT) -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/old-TV-scrap.webp" alt="CRT TV Scrap" class="h-32 w-full object-cover">
+                     <div class="p-4">
+                        <h3>Television (CRT)</h3>
+                        <p>₹100 - ₹200 / Unit</p>
+                    </div>
+                </div>
+
+                <!-- TV (LCD/LED) -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/LCD-monitor-scrap.webp" alt="LCD/LED TV Scrap" class="h-32 w-full object-cover">
+                     <div class="p-4">
+                        <h3>TV (LCD/LED)</h3>
+                        <p>₹100 - ₹2k / Unit</p>
+                    </div>
+                </div>
+
+                <!-- Fridge -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/fridge-scrap.webp" alt="Fridge Scrap" class="h-32 w-full object-cover">
+                     <div class="p-4">
+                        <h3>Fridge</h3>
+                        <p>₹500 - ₹9k / Unit</p>
+                    </div>
+                </div>
+
+                <!-- Washing Machine -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/scrap_1 (1).jpg" alt="Washing Machine Scrap" class="h-32 w-full object-cover"> <!-- Placeholder -->
+                     <div class="p-4">
+                        <h3>Washing Machine</h3>
+                        <p>₹700 - ₹800 / Unit</p>
+                    </div>
+                </div>
+
+                <!-- AC Unit -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/split-AC-scrap.webp" alt="AC Scrap" class="h-32 w-full object-cover">
+                     <div class="p-4">
+                        <h3>Air Conditioner</h3>
+                        <p>₹2.5k - ₹4.5k / Unit</p>
+                    </div>
+                </div>
+                
+                <!-- Tyre -->
+                <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/two-wheeler-scrap.webp" alt="Tyre Scrap" class="h-32 w-full object-cover"> <!-- Using bike img for tyre -->
+                    <div class="p-4">
+                        <h3>Tyre</h3>
+                        <p>₹3 / Kg</p>
+                    </div>
+                </div>
+                
+                 <!-- Two Wheeler -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/two-wheeler-scrap.webp" alt="Two Wheeler Scrap" class="h-32 w-full object-cover">
+                     <div class="p-4">
+                        <h3>Two Wheeler</h3>
+                        <p>₹800 - ₹3.5k / Unit</p>
+                    </div>
+                </div>
+
+                 <!-- Microwave -->
+                 <div class="price-card bg-white rounded-lg shadow-md overflow-hidden text-center border border-gray-200 transition-all duration-300 ease-in-out hover:scale-105 hover:border-secondary hover:shadow-xl">
+                    <img src="img/microwave-scrap.webp" alt="Microwave Scrap" class="h-32 w-full object-cover">
+                     <div class="p-4">
+                        <h3>Microwave</h3>
+                        <p>₹150 - ₹450 / Unit</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+     <!-- Contact / CTA Section -->
+    <section class="py-16 bg-light">
+        <div class="container mx-auto px-4 lg:px-8 text-center">
+             <p class="text-xl font-semibold text-primary">To sell your scrap, please visit one of our nearby branches listed below.</p>
+        </div>
+    </section>
+
+    <!-- Verified Scrap Dealers Section -->
+    <section class="py-12 bg-light/50">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Our Nearby Branches</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">
+                    Contact our verified EcoRevive branches directly for immediate price quotes, pickup arrangements, and responsible recycling of your scrap materials.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Dealer 1 -->
+                <div class="dealer-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 via-white to-light/10 transition-all duration-300 hover:shadow-lg hover:border-primary/30 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 1</h3>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-primary/80"></i> Dilsukhnagar, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-primary/80"></i> 9606158683</p>
+                    <p class="text-xs text-gray-600 bg-green-50 border border-green-100 rounded-md px-3 py-2">Accepts: All metals, electronics, batteries, plastics.</p>
+                    <a href="#scrap-form" class="mt-4 inline-block text-sm text-primary font-medium hover:text-dark transition">Request Pickup <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+
+                <!-- Dealer 2 -->
+                <div class="dealer-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 via-white to-light/10 transition-all duration-300 hover:shadow-lg hover:border-primary/30 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-store"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 2</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-primary/80"></i> Tolichowki, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-primary/80"></i> 7411640793</p>
+                    <p class="text-xs text-gray-600 bg-green-50 border border-green-100 rounded-md px-3 py-2">Accepts: Paper, cardboard, metals, selected plastics.</p>
+                    <a href="#scrap-form" class="mt-4 inline-block text-sm text-primary font-medium hover:text-dark transition">Request Pickup <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+
+                <!-- Dealer 3 -->
+                <div class="dealer-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 via-white to-light/10 transition-all duration-300 hover:shadow-lg hover:border-primary/30 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-store"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 3</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-primary/80"></i> Gachibowli, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-primary/80"></i> 8309944063</p>
+                    <p class="text-xs text-gray-600 bg-green-50 border border-green-100 rounded-md px-3 py-2">Accepts: E-waste, appliances, wiring, metals.</p>
+                    <a href="#scrap-form" class="mt-4 inline-block text-sm text-primary font-medium hover:text-dark transition">Request Pickup <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+
+                <!-- Dealer 4 -->
+                <div class="dealer-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 via-white to-light/10 transition-all duration-300 hover:shadow-lg hover:border-primary/30 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-store"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 4</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-primary/80"></i> Kavadiguda, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-primary/80"></i> 8045167636</p>
+                    <p class="text-xs text-gray-600 bg-green-50 border border-green-100 rounded-md px-3 py-2">Accepts: Metals (Iron, Steel, Copper, Aluminium), batteries.</p>
+                    <a href="#scrap-form" class="mt-4 inline-block text-sm text-primary font-medium hover:text-dark transition">Request Pickup <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+
+                <!-- Dealer 5 -->
+                 <div class="dealer-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 via-white to-light/10 transition-all duration-300 hover:shadow-lg hover:border-primary/30 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-store"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 5</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-primary/80"></i> Sagar Ringroad, L.B nagar, Hyderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-primary/80"></i> 7949303908</p>
+                    <p class="text-xs text-gray-600 bg-green-50 border border-green-100 rounded-md px-3 py-2">Accepts: All types of scrap materials, large appliances.</p>
+                    <a href="#scrap-form" class="mt-4 inline-block text-sm text-primary font-medium hover:text-dark transition">Request Pickup <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+
+                <!-- Dealer 6 -->
+                 <div class="dealer-card border border-gray-200 overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 via-white to-light/10 transition-all duration-300 hover:shadow-lg hover:border-primary/30 transform hover:scale-[1.01] hover:-translate-y-1 p-6">
+                    <div class="flex items-center mb-4">
+                         <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                             <i class="fas fa-store"></i>
+                         </div>
+                         <h3 class="text-xl font-semibold text-gray-800">EcoRevive Branch 6</h3>
+                     </div>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-primary/80"></i> Secunderabad</p>
+                    <p class="text-sm text-gray-500 mb-4"><i class="fas fa-phone-alt mr-1 text-primary/80"></i> 8043889296</p>
+                    <p class="text-xs text-gray-600 bg-green-50 border border-green-100 rounded-md px-3 py-2">Accepts: Tyres, vehicles, industrial scrap.</p>
+                    <a href="#scrap-form" class="mt-4 inline-block text-sm text-primary font-medium hover:text-dark transition">Request Pickup <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <div class="inline-block bg-primary/10 rounded-lg px-6 py-3 text-gray-700">
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scrap Content Section -->
+    <section id="scrap-form" class="py-12">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Submit Your Scrap Materials</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">
+                    Prefer to have us handle the process? Fill out the form below and we'll connect you with the best recycling partner based on your materials.
+                </p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="card p-8 md:p-10 bg-gradient-to-b from-white to-light/50">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">Submit Your Scrap Materials</h2>
+                    <!-- Form Container with Border and Background -->
+                    <div class="p-6 bg-white border border-secondary rounded-lg shadow-soft">
+                        <!-- Scrap Form -->
+                        <form id="scrap-form" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Name Input -->
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Your full name" required>
+                                </div>
+                                
+                                <!-- Email Input -->
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="your@email.com" required>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Scrap Type Dropdown -->
+                                <div>
+                                    <label for="scrap-type" class="block text-sm font-medium text-gray-700 mb-1">Scrap Type</label>
+                                    <select id="scrap-type" name="scrap-type" class="form-control" required>
+                                        <option value="" disabled selected>Select scrap type</option>
+                                        <option value="plastic">Plastic</option>
+                                        <option value="electronics">Electronics</option>
+                                        <option value="metal">Metal</option>
+                                        <option value="paper">Paper</option>
+                                        <option value="glass">Glass</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Size Input -->
+                                <div>
+                                    <label for="scrap-size" class="block text-sm font-medium text-gray-700 mb-1">Estimated Size (kg)</label>
+                                    <input type="number" id="scrap-size" name="scrap-size" class="form-control" placeholder="e.g., 5 (Max 10kg for form)" min="0" max="10" step="0.1">
+                                    <p class="text-xs text-gray-500 mt-1">For quantities over 10kg, please contact a branch directly.</p>
+                                </div>
+                            </div>
+                            
+                             <!-- Phone Number -->
+                             <div>
+                                 <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
+                                 <input type="tel" id="phone" name="phone" class="form-control" placeholder="(555) 123-4567">
+                             </div>
+                            
+                            <!-- Upload Image -->
+                            <div>
+                                <label for="item-image" class="block text-sm font-medium text-gray-700 mb-1">Upload Image of Item</label>
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-200 border-dashed rounded-lg bg-white">
+                                    <div class="space-y-1 text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <div class="flex text-sm text-gray-600 justify-center">
+                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-dark focus-within:outline-none">
+                                                <span>Upload a file</span>
+                                                <input id="file-upload" name="file-upload" type="file" class="sr-only" accept="image/*">
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">
+                                            PNG, JPG, GIF up to 5MB
+                                        </p>
+                                    </div>
+                                </div>
+                                <div id="image-preview" class="mt-3 hidden">
+                                    <img id="preview-img" src="#" alt="Preview" class="h-40 rounded-lg object-cover">
+                                    <button type="button" id="remove-img" class="mt-2 text-sm text-red-500 hover:text-red-700 flex items-center">
+                                        <i class="fas fa-times mr-1"></i> Remove image
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Description Textarea -->
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea id="description" name="description" rows="4" class="form-control" placeholder="Please provide a short description of your scrap items, including quantity, condition, and any other relevant details." required></textarea>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="text-center">
+                                <button type="submit" class="py-4 px-10 btn-primary text-lg font-semibold">
+                                    Submit Scrap Request
+                                </button>
+                            </div>
+                        </form>
+                    </div> <!-- End Form Container -->
+                    
+                    <!-- Thank You Message (Hidden by default) -->
+                    <div id="thank-you-message" class="thank-you-message text-center py-8">
+                        <div class="text-primary mb-4">
+                            <svg class="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Thank You for Your Submission!</h3>
+                        <p class="text-lg text-gray-600 mb-6">
+                            Your scrap submission has been received! Our system will connect you to the nearest scrap dealer soon.
+                        </p>
+                        <a href="home.html" class="inline-block px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-dark transition">
+                            Return to Home
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center text-gray-600 text-sm">
+                    <p>By submitting this form, you agree to our <a href="#" class="text-primary hover:underline">Terms of Service</a> and <a href="#" class="text-primary hover:underline">Privacy Policy</a>.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer id="contact" class="bg-gray-800 text-white py-12 mt-16">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">EcoRevive 🌱</h3>
+                    <p class="text-gray-300 mb-4">
+                        Building a sustainable future, one item at a time.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 hover:bg-gray-600 hover:text-white transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 hover:bg-gray-600 hover:text-white transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 hover:bg-gray-600 hover:text-white transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 hover:bg-gray-600 hover:text-white transition">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="home.html" class="text-gray-300 hover:text-white transition">Home</a></li>
+                        <li><a href="index.html#services" class="text-gray-300 hover:text-white transition">Our Services</a></li>
+                        <li><a href="index.html#how-it-works" class="text-gray-300 hover:text-white transition">How It Works</a></li>
+                        <li><a href="index.html#about" class="text-gray-300 hover:text-white transition">About</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Legal -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Legal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Terms & Conditions</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Cookie Policy</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mr-2 mt-1"></i>
+                            <span>123 Eco Street, Green City</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mr-2 mt-1"></i>
+                            <span>info@ecorevive.com</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt mr-2 mt-1"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-12 pt-8 text-center">
+                <p>&copy; 2023 EcoRevive. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for basic functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded - Initializing page');
+            
+            // Mobile menu toggle
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Removed scrap form and image preview logic from this section as it might be elsewhere
+            // Handle scrap form submission (if needed, similar to donate page)
+            // Image preview functionality (if needed, similar to donate page)
+        });
+
+        // Placeholder logout function
+        function logout() {
+            console.log('Logout action triggered');
+            // Add actual logout logic here
+            window.location.href = 'login.html'; 
+        }
+
+    </script>
+    <!-- Chatbot Widget Start -->
+    <div id="chatbot-container" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <!-- Chat Button -->
+        <button id="chatbot-toggle" aria-label="Open Chatbot" class="bg-primary text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-accent transition mb-2 focus:outline-none">
+            <i class="fas fa-comments"></i>
+        </button>
+        <!-- Chat Window -->
+        <div id="chatbot-window" class="hidden w-80 bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-fade-in">
+            <div class="bg-primary text-white px-4 py-3 flex items-center justify-between">
+                <span class="font-semibold">EcoRevive Assistant</span>
+                <button id="chatbot-close" class="text-white hover:text-accent text-lg focus:outline-none" aria-label="Close Chatbot">&times;</button>
+            </div>
+            <div id="chatbot-messages" class="flex-1 px-4 py-3 space-y-2 overflow-y-auto bg-gray-50" style="max-height: 320px;"></div>
+            <form id="chatbot-form" class="flex border-t border-gray-200 bg-white">
+                <input id="chatbot-input" type="text" class="flex-1 px-3 py-2 outline-none text-gray-800 bg-transparent" placeholder="Ask about EcoRevive..." autocomplete="off" required />
+                <button type="submit" class="px-4 py-2 bg-accent text-white font-semibold rounded-r-lg hover:bg-primary transition">Send</button>
+            </form>
+        </div>
+    </div>
+    <!-- Chatbot Widget End -->
+
+    <script>
+    // Enhanced FAQ-based chatbot
+    const ecoReviveFAQs = [
+      { question: "What is EcoRevive?", answer: "EcoRevive is a platform where you can donate or repair old/refurbished items. We promote sustainability by helping you extend the life of your belongings before you consider donating them to someone in need." },
+      { question: "How does the repair chatbot work?", answer: "Our AI-powered repair assistant helps you troubleshoot and fix common issues with various items. Just describe the item and the problem, and the chatbot will guide you with steps, tools needed, and video tutorials." },
+      { question: "What kind of items can I repair through EcoRevive?", answer: "You can repair electronics, furniture, clothes, small appliances, and more. Our chatbot will try its best to assist based on the item type you provide." },
+      { question: "Where do the tutorial videos come from?", answer: "The videos are sourced from YouTube. The chatbot recommends high-quality, trusted repair tutorials based on your query to help you fix your item yourself." },
+      { question: "What happens if I can't repair the item?", answer: "No worries! You can still choose to donate it. We'll either send it to our partner NGOs or help route it to professionals for further refurbishment." },
+      { question: "Do I need to sign up to use the repair assistant?", answer: "No signup is needed to access the repair assistant. However, creating an account lets you track your repairs, donations, and earn reward points!" },
+      { question: "Is there a cost to use EcoRevive?", answer: "EcoRevive is free to use. Our goal is to reduce waste and promote a culture of repair and reuse. You may only pay if you choose professional pickup or repair services." },
+      { question: "How do I contact support?", answer: "You can chat with our bot anytime, or send us a message through the Contact Us page. We're here to help!" },
+      { question: "Can I schedule a pickup for donation items?", answer: "Yes! You can schedule a pickup from your dashboard after listing your items. We'll coordinate with our partnered NGOs or repair teams based on your location." },
+      { question: "Will I get any reward or points for donating?", answer: "Yes! We believe in appreciating your kindness. Every donation earns you EcoPoints which can be redeemed for discounts, gift items, or recognition on our platform." },
+      { question: "What condition should the item be in before donating?", answer: "We accept items that are gently used, functional, or repairable. You can even use the AI repair guide before donation to ensure better usability for the recipient." },
+      { question: "Is my personal information safe?", answer: "Absolutely. We take privacy seriously and do not share your personal data with third parties without consent." },
+      { question: "What NGOs are partnered with EcoRevive?", answer: "We collaborate with trusted, verified NGOs focused on education, rural development, and community upliftment. You can view each NGO's profile on the Donation page." },
+      { question: "Can I suggest an NGO to be listed on EcoRevive?", answer: "Yes! We welcome recommendations. If you know an NGO doing great work, drop us a suggestion and we’ll reach out for verification." },
+      { question: "Can I repair items on mobile or only on desktop?", answer: "The AI repair assistant and tutorials are fully mobile-friendly. You can fix and follow guides on any device!" },
+      { question: "Can I request a human repair expert if I need extra help?", answer: "Yes, if you feel stuck, you can request help. We'll connect you to a verified technician or guide you to the nearest service center." },
+      { question: "How often is the chatbot updated?", answer: "The chatbot is regularly updated with new repair guides, smarter conversation flow, and the latest video tutorials for accuracy and ease." },
+      { question: "Can schools or communities use EcoRevive together?", answer: "Yes! We love group initiatives. Schools, colleges, and housing societies can join EcoRevive as partners for bulk donations or eco-awareness campaigns." }
+    ];
+    // Previous keyword-based fallback
+    const chatbotQA = [
+        { q: ["donate", "donation", "how to donate"], a: "To donate items, simply sign up or log in, then click on the 'Donate' option in your dashboard. Follow the steps to list your items for donation." },
+        { q: ["sell", "scrap", "how to sell"], a: "To sell scrap, log in and select the 'Sell Scrap' feature. You can list your items and connect with buyers interested in recycling." },
+        { q: ["repair", "fix", "repair service"], a: "EcoRevive offers repair services. Go to the 'Repair' section after logging in to request a repair or find local repair partners." },
+        { q: ["reward", "points", "how to earn"], a: "You earn reward points by donating, selling scrap, or using repair services. Points can be redeemed for discounts or special offers." },
+        { q: ["signup", "register", "create account"], a: "Click the 'Sign Up' button at the top right to create your EcoRevive account." },
+        { q: ["login", "sign in", "log in"], a: "Use the 'Log In' button at the top right to access your account." },
+        { q: ["feature", "what can i do", "services"], a: "EcoRevive lets you donate, sell scrap, repair items, and earn rewards for sustainable actions." },
+        { q: ["contact", "support", "help"], a: "For support, use the contact form on our website or email us at support@ecorevive.com." }
+    ];
+
+    // Enhanced answer selection: first try FAQ, then fallback to keywords
+    function getChatbotAnswer(userMsg) {
+        const msg = userMsg.toLowerCase();
+        // Try FAQ match (by question or keywords)
+        for (const faq of ecoReviveFAQs) {
+            // Direct question match
+            if (faq.question.toLowerCase() === msg) {
+                return faq.answer;
+            }
+            // Partial/keyword match
+            const questionWords = faq.question.toLowerCase().split(/\W+/);
+            if (questionWords.some(word => word.length > 3 && msg.includes(word))) {
+                return faq.answer;
+            }
+        }
+        // Fallback to previous keyword logic
+        for (const pair of chatbotQA) {
+            if (pair.q.some(keyword => msg.includes(keyword))) {
+                return pair.a;
+            }
+        }
+        return "Sorry, I can only answer questions related to EcoRevive's features. Please try asking about donating, selling scrap, repairs, rewards, or signing up.";
+    }
+
+    // DOM Elements
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbotWindow = document.getElementById('chatbot-window');
+    const chatbotClose = document.getElementById('chatbot-close');
+    const chatbotForm = document.getElementById('chatbot-form');
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+
+    // Open/close logic
+    chatbotToggle.addEventListener('click', () => {
+        chatbotWindow.classList.toggle('hidden');
+        if (!chatbotWindow.classList.contains('hidden')) {
+            setTimeout(() => chatbotInput.focus(), 200);
+        }
+    });
+    chatbotClose.addEventListener('click', () => {
+        chatbotWindow.classList.add('hidden');
+    });
+
+    // Handle chat form submission
+    chatbotForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const userMsg = chatbotInput.value.trim();
+        if (!userMsg) return;
+        appendMessage(userMsg, 'user');
+        chatbotInput.value = '';
+        setTimeout(() => {
+            const botReply = getChatbotAnswer(userMsg);
+            appendMessage(botReply, 'bot');
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }, 500);
+    });
+
+    // Append message to chat
+    function appendMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = sender === 'user'
+            ? 'flex justify-end'
+            : 'flex justify-start';
+        msgDiv.innerHTML = `<div class="max-w-[80%] px-4 py-2 rounded-lg shadow text-sm ${sender === 'user' ? 'bg-accent text-white' : 'bg-gray-200 text-gray-900'}">${text}</div>`;
+        chatbotMessages.appendChild(msgDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+    </script>
+
+</body>
+</html> 

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EcoRevive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2E7D32', // Main green
+                        secondary: '#A5D6A7', // Light green accent
+                        accent: '#66BB6A', // Brighter, slightly lighter green for gradients
+                        dark: '#1B5E20', // Dark green
+                        light: '#F1F8F1', // Very light off-white/green background
+                        "text-primary": '#1B5E20', // Dark text
+                        "text-secondary": '#555', // Lighter text
+                        "text-light": '#E8F5E9', // Light text on dark bg
+                        "border-color": '#D1E4D1' // Soft border color
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Roboto', 'system-ui', 'sans-serif']
+                    },
+                    borderRadius: {
+                        'xl': '1.0rem', // Larger radius for card
+                        '2xl': '1.5rem'  // Even larger
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .form-container {
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+        }
+        .form-hidden {
+            opacity: 0;
+            transform: translateY(15px);
+            position: absolute;
+            pointer-events: none;
+            visibility: hidden;
+            width: 100%; 
+        }
+        .form-visible {
+            opacity: 1;
+            transform: translateY(0);
+            position: relative;
+            pointer-events: auto;
+            visibility: visible;
+            width: 100%; 
+        }
+        input:focus {
+            @apply ring-2 ring-primary/40 border-primary transition duration-150;
+        }
+    </style>
+</head>
+<body class="bg-cover bg-center min-h-screen relative">
+    <!-- Vignette Overlay -->
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 80%, rgba(0,0,0,0.8) 100%), url('img/landing_03.jpg');"></div>
+
+<div class="flex min-h-screen items-center justify-center p-4 relative z-10">
+
+    <!-- Left Section Removed -->
+
+    <!-- Form Section (formerly Right) -->
+    <div class="w-full flex flex-col items-center justify-center">
+        
+        <div class="w-full max-w-md relative space-y-8">
+            <!-- Logo -->
+            <div class="text-center">
+                 <a href="index.html" class="inline-block mb-8">
+                     <span class="text-3xl font-bold text-white [text-shadow:_1px_1px_3px_rgb(0_0_0_/_70%)]">EcoRevive 🌱</span>
+                 </a>
+            </div>
+
+            <!-- Form Card Area -->
+            <div class="relative">
+                <!-- Login Form -->
+                <div id="loginForm" class="form-container form-visible">
+                    <div class="bg-white/90 backdrop-blur-sm p-8 sm:p-10 rounded-2xl shadow-xl border border-border-color space-y-6">
+                        <h2 class="text-xl font-semibold text-center text-text-primary">Sign in with your email</h2>
+                        <form class="space-y-5" action="#" method="POST" onsubmit="handleRedirect(event)">
+                            <div>
+                                <label for="login-email" class="sr-only">Email address</label>
+                                <input id="login-email" name="email" type="email" autocomplete="email" required 
+                                       class="block w-full rounded-lg border border-border-color py-3 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-150"
+                                       placeholder="Email address">
+                            </div>
+
+                            <div>
+                                <label for="login-password" class="sr-only">Password</label>
+                                <input id="login-password" name="password" type="password" autocomplete="current-password" required 
+                                       class="block w-full rounded-lg border border-border-color py-3 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-150"
+                                       placeholder="Password">
+                            </div>
+
+                            <div>
+                                <button type="submit" 
+                                        class="flex w-full justify-center rounded-lg bg-primary px-4 py-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition duration-200 transform hover:scale-[1.02]">
+                                    Sign In
+                                </button>
+                            </div>
+                        </form>
+                        <div class="text-center text-sm pt-2">
+                            <a href="#" onclick="showForm('signupForm'); return false;" 
+                               class="font-medium text-primary hover:text-dark hover:underline transition duration-150">
+                                Need an account? Sign Up
+                            </a>
+                             <span class="text-gray-400 mx-2">|</span>
+                             <a href="#" onclick="showForm('adminForm'); return false;" 
+                                class="font-medium text-primary hover:text-dark hover:underline transition duration-150">
+                                Admin Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sign Up Form -->
+                <div id="signupForm" class="form-container form-hidden">
+                     <div class="bg-white/90 backdrop-blur-sm p-8 sm:p-10 rounded-2xl shadow-xl border border-border-color space-y-6">
+                        <h2 class="text-xl font-semibold text-center text-text-primary">Create your EcoRevive account</h2>
+                        <form class="space-y-5" action="#" method="POST" onsubmit="handleRedirect(event)">
+                             <div>
+                                <label for="signup-name" class="sr-only">Full Name</label>
+                                <input id="signup-name" name="name" type="text" autocomplete="name" required 
+                                       class="block w-full rounded-lg border border-border-color py-3 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-150"
+                                       placeholder="Full Name">
+                            </div>
+                            <div>
+                                <label for="signup-email" class="sr-only">Email address</label>
+                                <input id="signup-email" name="email" type="email" autocomplete="email" required 
+                                       class="block w-full rounded-lg border border-border-color py-3 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-150"
+                                       placeholder="Email address">
+                            </div>
+                            <div>
+                                <label for="signup-password" class="sr-only">Password</label>
+                                <input id="signup-password" name="password" type="password" required 
+                                       class="block w-full rounded-lg border border-border-color py-3 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-150"
+                                       placeholder="Create Password">
+                            </div>
+                            <div>
+                                <label for="signup-confirm-password" class="sr-only">Confirm Password</label>
+                                <input id="signup-confirm-password" name="confirm-password" type="password" required 
+                                       class="block w-full rounded-lg border border-border-color py-3 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-150"
+                                       placeholder="Confirm Password">
+                            </div>
+
+                            <div>
+                                <button type="submit" 
+                                        class="flex w-full justify-center rounded-lg bg-primary px-4 py-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition duration-200 transform hover:scale-[1.02]">
+                                    Create Account
+                                </button>
+                            </div>
+                        </form>
+                        <div class="text-center text-sm pt-2">
+                            <a href="#" onclick="showForm('loginForm'); return false;" 
+                               class="font-medium text-primary hover:text-dark hover:underline transition duration-150">
+                                Already have an account? Sign In
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Login Form -->
+                <div id="adminForm" class="form-container form-hidden">
+                    <div class="bg-white/90 backdrop-blur-sm p-8 sm:p-10 rounded-2xl shadow-xl border border-border-color space-y-6">
+                        <h2 class="text-xl font-semibold text-center text-text-primary">Admin Panel Login</h2>
+                        <form id="admin-login-form" class="space-y-5" action="#" method="POST" onsubmit="handleRedirect(event)">
+                            <div>
+                                <label for="admin-email" class="sr-only">Admin Email or Username</label>
+                                <input id="admin-email" name="admin-email" type="text" required 
+                                       class="block w-full rounded-lg border border-border-color py-3 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-150"
+                                       placeholder="Admin Email or Username">
+                            </div>
+
+                            <div>
+                                <label for="admin-password" class="sr-only">Admin Password</label>
+                                <input id="admin-password" name="admin-password" type="password" required 
+                                       class="block w-full rounded-lg border border-border-color py-3 px-4 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-150"
+                                       placeholder="Admin Password">
+                            </div>
+
+                            <div>
+                                <button type="submit" 
+                                        class="flex w-full justify-center rounded-lg bg-primary px-4 py-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition duration-200 transform hover:scale-[1.02]">
+                                    Admin Login
+                                </button>
+                            </div>
+                        </form>
+                        <div class="text-center text-sm pt-2">
+                            <a href="#" onclick="showForm('loginForm'); return false;" 
+                               class="font-medium text-primary hover:text-dark hover:underline transition duration-150">
+                                Back to User Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+            <!-- End Form Card Area -->
+
+            <!-- Legal Text -->
+            <p class="mt-10 text-center text-xs text-gray-500">
+                 By logging in or signing up, you agree to EcoRevive's<br>
+                 <a href="#" class="underline hover:text-primary">Terms & Conditions</a> and 
+                 <a href="#" class="underline hover:text-primary">Privacy Policy</a>.
+             </p>
+        </div>
+        
+    </div>
+
+</div>
+
+<script>
+    const forms = ['loginForm', 'signupForm', 'adminForm'];
+
+    function showForm(formIdToShow) {
+        forms.forEach(formId => {
+            const formElement = document.getElementById(formId);
+            if (!formElement) return; 
+            
+            if (formId === formIdToShow) {
+                 requestAnimationFrame(() => {
+                     formElement.classList.remove('form-hidden');
+                     formElement.classList.add('form-visible');
+                 });
+            } else {
+                formElement.classList.add('form-hidden');
+                formElement.classList.remove('form-visible');
+            }
+        });
+    }
+
+    function handleRedirect(event) {
+        event.preventDefault(); 
+        const formId = event.target.id;
+        
+        if (formId === 'admin-login-form') {
+            console.log('Redirecting to admin_home.html...');
+            window.location.href = 'admin_home.html';
+        } else {
+            console.log('Redirecting to home.html...');
+            window.location.href = 'home.html'; // Default redirect for user login/signup
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        forms.forEach(formId => {
+             const formElement = document.getElementById(formId);
+             if(formElement) {
+                 if (formId !== 'loginForm') {
+                     formElement.classList.add('form-hidden');
+                     formElement.classList.remove('form-visible');
+                 } else {
+                      formElement.classList.remove('form-hidden');
+                      formElement.classList.add('form-visible');
+                 }
+             }
+        });
+    });
+</script>
+
+</body>
+</html> 
